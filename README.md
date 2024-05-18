@@ -1,0 +1,1 @@
+# go-crud-generator
