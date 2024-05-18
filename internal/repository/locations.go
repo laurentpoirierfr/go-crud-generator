@@ -6,7 +6,7 @@ import (
 )
 
 type Locations struct {
-    Location_id string
+    Location_id int
     Street_address string
     Postal_code string
     City string
@@ -23,7 +23,7 @@ func CreateLocations(db *sql.DB, entity Locations) (sql.Result, error) {
     return result, nil
 }
 
-func GetLocationsByID(db *sql.DB, id interface{}) (*Locations, error) {
+func GetLocationsByID(db *sql.DB, id int) (*Locations, error) {
     query := "SELECT * FROM locations WHERE location_id = ?"
     row := db.QueryRow(query, id)
 
@@ -42,7 +42,7 @@ func GetLocationsByID(db *sql.DB, id interface{}) (*Locations, error) {
     return &entity, nil
 }
 
-func UpdateLocations(db *sql.DB, entity Locations, id interface{}) (sql.Result, error) {
+func UpdateLocations(db *sql.DB, entity Locations, id int) (sql.Result, error) {
     query := "UPDATE locations SET street_address = ?, postal_code = ?, city = ?, state_province = ?, country_id = ? WHERE location_id = ?"
     args := []interface{}{
         entity.Location_id,
@@ -60,7 +60,7 @@ func UpdateLocations(db *sql.DB, entity Locations, id interface{}) (sql.Result, 
     return result, nil
 }
 
-func DeleteLocations(db *sql.DB, id interface{}) (sql.Result, error) {
+func DeleteLocations(db *sql.DB, id int) (sql.Result, error) {
     query := "DELETE FROM locations WHERE location_id = ?"
     result, err := db.Exec(query, id)
     if err != nil {

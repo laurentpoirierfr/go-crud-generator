@@ -6,10 +6,10 @@ import (
 )
 
 type Departments struct {
-    Department_id string
+    Department_id int
     Department_name string
-    Manager_id string
-    Location_id string
+    Manager_id int
+    Location_id int
 }
 
 func CreateDepartments(db *sql.DB, entity Departments) (sql.Result, error) {
@@ -21,7 +21,7 @@ func CreateDepartments(db *sql.DB, entity Departments) (sql.Result, error) {
     return result, nil
 }
 
-func GetDepartmentsByID(db *sql.DB, id interface{}) (*Departments, error) {
+func GetDepartmentsByID(db *sql.DB, id int) (*Departments, error) {
     query := "SELECT * FROM departments WHERE department_id = ?"
     row := db.QueryRow(query, id)
 
@@ -38,7 +38,7 @@ func GetDepartmentsByID(db *sql.DB, id interface{}) (*Departments, error) {
     return &entity, nil
 }
 
-func UpdateDepartments(db *sql.DB, entity Departments, id interface{}) (sql.Result, error) {
+func UpdateDepartments(db *sql.DB, entity Departments, id int) (sql.Result, error) {
     query := "UPDATE departments SET department_name = ?, manager_id = ?, location_id = ? WHERE department_id = ?"
     args := []interface{}{
         entity.Department_id,
@@ -54,7 +54,7 @@ func UpdateDepartments(db *sql.DB, entity Departments, id interface{}) (sql.Resu
     return result, nil
 }
 
-func DeleteDepartments(db *sql.DB, id interface{}) (sql.Result, error) {
+func DeleteDepartments(db *sql.DB, id int) (sql.Result, error) {
     query := "DELETE FROM departments WHERE department_id = ?"
     result, err := db.Exec(query, id)
     if err != nil {

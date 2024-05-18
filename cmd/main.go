@@ -34,10 +34,10 @@ func parseSchemaFile(filepath string) ([]Table, error) {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 
-		if strings.HasPrefix(strings.ToUpper(line), "CREATE TABLE") {
+		if strings.Contains(strings.ToUpper(line), "CREATE TABLE") {
 			tableName := extractTableName(line)
 			currentTable = &Table{Name: tableName}
-		} else if strings.HasPrefix(strings.ToUpper(line), "PRIMARY KEY") {
+		} else if strings.Contains(strings.ToUpper(line), "PRIMARY KEY") {
 			if currentTable != nil {
 				pkColumn := extractPrimaryKey(line)
 				for i, col := range currentTable.Columns {
@@ -99,7 +99,7 @@ import (
 
 type {{.TableName}} struct {
 {{- range .Columns }}
-    {{ toTitleCase .Name }} {{ goType .Type }}
+    {{ toTitleCase .Name }} {{ .Type }}
 {{- end }}
 }
 
@@ -112,7 +112,7 @@ func Create{{.TableName}}(db *sql.DB, entity {{.TableName}}) (sql.Result, error)
     return result, nil
 }
 
-func Get{{.TableName}}ByID(db *sql.DB, id interface{}) (*{{.TableName}}, error) {
+func Get{{.TableName}}ByID(db *sql.DB, id {{.PrimaryKeyType}}) (*{{.TableName}}, error) {
     query := "SELECT * FROM {{.TableNameLower}} WHERE {{.PrimaryKey}} = ?"
     row := db.QueryRow(query, id)
 
@@ -128,7 +128,7 @@ func Get{{.TableName}}ByID(db *sql.DB, id interface{}) (*{{.TableName}}, error) 
     return &entity, nil
 }
 
-func Update{{.TableName}}(db *sql.DB, entity {{.TableName}}, id interface{}) (sql.Result, error) {
+func Update{{.TableName}}(db *sql.DB, entity {{.TableName}}, id {{.PrimaryKeyType}}) (sql.Result, error) {
     query := "UPDATE {{.TableNameLower}} SET {{.UpdatePlaceholders}} WHERE {{.PrimaryKey}} = ?"
     args := []interface{}{
 {{- range .Columns }}
@@ -143,7 +143,7 @@ func Update{{.TableName}}(db *sql.DB, entity {{.TableName}}, id interface{}) (sq
     return result, nil
 }
 
-func Delete{{.TableName}}(db *sql.DB, id interface{}) (sql.Result, error) {
+func Delete{{.TableName}}(db *sql.DB, id {{.PrimaryKeyType}}) (sql.Result, error) {
     query := "DELETE FROM {{.TableNameLower}} WHERE {{.PrimaryKey}} = ?"
     result, err := db.Exec(query, id)
     if err != nil {
@@ -182,6 +182,7 @@ type CrudTemplateData struct {
 	TableName          string
 	TableNameLower     string
 	PrimaryKey         string
+	PrimaryKeyType     string
 	Columns            []Column
 	ColumnNames        string
 	Placeholders       string
@@ -234,9 +235,11 @@ func generateCrudCode(tables []Table, packageName, targetDir string) error {
 			table.Columns[i].Type = goType(col.Type)
 		}
 		primaryKey := ""
+		primaryKeyType := ""
 		for _, col := range table.Columns {
 			if col.IsPrimaryKey {
 				primaryKey = col.Name
+				primaryKeyType = col.Type
 				break
 			}
 		}
@@ -257,11 +260,16 @@ func generateCrudCode(tables []Table, packageName, targetDir string) error {
 			}
 		}
 
+		if len(primaryKey) == 0 {
+			primaryKeyType = "interface{}"
+		}
+
 		data := CrudTemplateData{
 			PackageName:        packageName,
 			TableName:          toTitleCase(table.Name),
 			TableNameLower:     strings.ToLower(table.Name),
 			PrimaryKey:         primaryKey,
+			PrimaryKeyType:     primaryKeyType,
 			Columns:            table.Columns,
 			ColumnNames:        strings.Join(colNames, ", "),
 			Placeholders:       strings.Join(placeholders, ", "),

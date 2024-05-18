@@ -8,8 +8,8 @@ import (
 type Jobs struct {
     Job_id string
     Job_title string
-    Min_salary string
-    Max_salary string
+    Min_salary int
+    Max_salary int
 }
 
 func CreateJobs(db *sql.DB, entity Jobs) (sql.Result, error) {
@@ -21,7 +21,7 @@ func CreateJobs(db *sql.DB, entity Jobs) (sql.Result, error) {
     return result, nil
 }
 
-func GetJobsByID(db *sql.DB, id interface{}) (*Jobs, error) {
+func GetJobsByID(db *sql.DB, id string) (*Jobs, error) {
     query := "SELECT * FROM jobs WHERE job_id = ?"
     row := db.QueryRow(query, id)
 
@@ -38,7 +38,7 @@ func GetJobsByID(db *sql.DB, id interface{}) (*Jobs, error) {
     return &entity, nil
 }
 
-func UpdateJobs(db *sql.DB, entity Jobs, id interface{}) (sql.Result, error) {
+func UpdateJobs(db *sql.DB, entity Jobs, id string) (sql.Result, error) {
     query := "UPDATE jobs SET job_title = ?, min_salary = ?, max_salary = ? WHERE job_id = ?"
     args := []interface{}{
         entity.Job_id,
@@ -54,7 +54,7 @@ func UpdateJobs(db *sql.DB, entity Jobs, id interface{}) (sql.Result, error) {
     return result, nil
 }
 
-func DeleteJobs(db *sql.DB, id interface{}) (sql.Result, error) {
+func DeleteJobs(db *sql.DB, id string) (sql.Result, error) {
     query := "DELETE FROM jobs WHERE job_id = ?"
     result, err := db.Exec(query, id)
     if err != nil {

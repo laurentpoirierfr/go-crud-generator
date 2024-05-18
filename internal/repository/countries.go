@@ -8,7 +8,7 @@ import (
 type Countries struct {
     Country_id string
     Country_name string
-    Region_id string
+    Region_id int
 }
 
 func CreateCountries(db *sql.DB, entity Countries) (sql.Result, error) {
@@ -20,7 +20,7 @@ func CreateCountries(db *sql.DB, entity Countries) (sql.Result, error) {
     return result, nil
 }
 
-func GetCountriesByID(db *sql.DB, id interface{}) (*Countries, error) {
+func GetCountriesByID(db *sql.DB, id string) (*Countries, error) {
     query := "SELECT * FROM countries WHERE country_id = ?"
     row := db.QueryRow(query, id)
 
@@ -36,7 +36,7 @@ func GetCountriesByID(db *sql.DB, id interface{}) (*Countries, error) {
     return &entity, nil
 }
 
-func UpdateCountries(db *sql.DB, entity Countries, id interface{}) (sql.Result, error) {
+func UpdateCountries(db *sql.DB, entity Countries, id string) (sql.Result, error) {
     query := "UPDATE countries SET country_name = ?, region_id = ? WHERE country_id = ?"
     args := []interface{}{
         entity.Country_id,
@@ -51,7 +51,7 @@ func UpdateCountries(db *sql.DB, entity Countries, id interface{}) (sql.Result, 
     return result, nil
 }
 
-func DeleteCountries(db *sql.DB, id interface{}) (sql.Result, error) {
+func DeleteCountries(db *sql.DB, id string) (sql.Result, error) {
     query := "DELETE FROM countries WHERE country_id = ?"
     result, err := db.Exec(query, id)
     if err != nil {
