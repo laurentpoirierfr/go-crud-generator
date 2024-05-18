@@ -9,11 +9,11 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/cmd/schema/main.go",
+            "program": "${workspaceFolder}/cmd/main.go",
             "args": [
                 "../schemas/schema-test.sql",
                 "repository",
-                "../internal/schema"
+                "../internal/repository"
             ]
         }
     ]

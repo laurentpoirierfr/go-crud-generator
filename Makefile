@@ -1,2 +1,2 @@
 generate:
-	go run main.go schemas/schema-test.sql repository 
+	go run cmd/main.go schemas/schema-test.sql repository internal/repository
